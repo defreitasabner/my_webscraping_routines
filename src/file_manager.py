@@ -6,9 +6,9 @@ from webscrapers.g1_webscraper import G1Webscraper
 
 class FileManager:
     def __init__(self):
-        self.__NEWS_DATA = os.path.join("data", "news.csv")
+        self.__RAW_NEWS_DATA = os.path.join("data", "raw_news.csv")
 
-        self.__news_df = self.read_csv(self.__NEWS_DATA)
+        self.__news_df = self.read_csv(self.__RAW_NEWS_DATA)
     
     def verify_repeated_data(self, news_webscraper: G1Webscraper):
         if type(self.__news_df) is pd.DataFrame:
@@ -35,10 +35,10 @@ class FileManager:
         new_dataframe["texto_bruto"] = new_dataframe["texto_bruto"].astype("string")
         new_dataframe["origem"] = new_dataframe["origem"].astype("string")
         new_dataframe["categoria"] = new_dataframe["categoria"].astype("category")
-        if os.path.exists(self.__NEWS_DATA):
-            existing_dataframe = pd.read_csv(self.__NEWS_DATA)
+        if os.path.exists(self.__RAW_NEWS_DATA):
+            existing_dataframe = pd.read_csv(self.__RAW_NEWS_DATA)
             dataframe = pd.concat([existing_dataframe, new_dataframe])
             dataframe.drop_duplicates(subset=["titulo", "url"], inplace = True)
-            dataframe.to_csv(self.__NEWS_DATA, index=False)
+            dataframe.to_csv(self.__RAW_NEWS_DATA, index=False)
         else:
-            new_dataframe.to_csv(self.__NEWS_DATA, index=False)
+            new_dataframe.to_csv(self.__RAW_NEWS_DATA, index=False)

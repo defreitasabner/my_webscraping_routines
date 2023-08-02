@@ -34,7 +34,7 @@ class G1Webscraper(NewsWebscraper):
         description = treat_string(news_page.find("h2").get_text().strip())
         category = news_page.find(attrs = { "class" : "header-editoria--link" }).get_text().strip()
         datetime = datetime_convert(news_page.time["datetime"].strip()) if news_page.time else np.NAN
-        raw_text = self.__remove_figure_captions(treat_string(news_page.article.get_text().strip()))
+        raw_text = treat_string(news_page.article.get_text().strip())
         return NewsData.fromBaseData(
             base_data   = data,
             description = description,
