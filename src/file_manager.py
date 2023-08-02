@@ -6,7 +6,7 @@ from webscrapers.g1_webscraper import G1Webscraper
 
 class FileManager:
     def __init__(self):
-        self.__NEWS_DATA = os.path.join("src", "data", "news.csv")
+        self.__NEWS_DATA = os.path.join("data", "news.csv")
 
         self.__news_df = self.read_csv(self.__NEWS_DATA)
     
@@ -21,7 +21,7 @@ class FileManager:
     def read_csv(self, path: str) -> pd.DataFrame:
         try:
             if os.path.exists(path):
-                return pd.read_csv(path, sep=";")
+                return pd.read_csv(path)
             else:
                 return None
         except:
@@ -29,7 +29,6 @@ class FileManager:
 
     def save_csv(self, data: List[Dict[str, Any]]) -> None:
         new_dataframe = pd.DataFrame.from_records(data)
-        print(new_dataframe.info())
         new_dataframe["titulo"] = new_dataframe["titulo"].astype("string")
         new_dataframe["url"] = new_dataframe["url"].astype("string")
         new_dataframe["descricao"] = new_dataframe["descricao"].astype("string")
