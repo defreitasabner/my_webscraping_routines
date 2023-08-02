@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 class NewsWebscraper(ABC):
 
     @abstractmethod
-    def extract_first_page_data(self):
+    def search_for_news_on_first_page(self):
         pass
 
     def _get_page(self, url):

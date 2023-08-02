@@ -1,11 +1,9 @@
 from webscrapers.g1_webscraper import G1Webscraper
 from file_manager import FileManager
 
-import pandas as pd
-
-g1 = G1Webscraper()
-data = g1.extract_first_page_data()
-
 manager = FileManager()
-manager.save_csv(data)
-print(pd.read_csv("src/data/news.csv"))
+g1 = G1Webscraper()
+g1.search_for_news_on_first_page()
+manager.verify_repeated_data(g1)
+g1.extract_news_data()
+manager.save_csv(g1.data)

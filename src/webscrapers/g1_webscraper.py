@@ -1,40 +1,81 @@
-from .interfaces.news_webscraper import NewsWebscraper
+from typing import List, Dict, Any
+
+import pandas as pd
 import numpy as np
+
+from webscrapers.base_data import BaseData
+from webscrapers.exceptions import InvalidUrlException
+from webscrapers.helpers import treat_string
+
+from .interfaces.news_webscraper import NewsWebscraper
+from .news_data import NewsData
 
 class G1Webscraper(NewsWebscraper):
     def __init__(self):
-        self.__PAGE_NAME = 'g1'
+        self.__PAGE_NAME = 'G1'
         self.__BASE_URL = "https://g1.globo.com/"
-        self.__NEWS_CONTAINER = {"class": "feed-post-body"}
+        self.__raw_data: List[BaseData] = []
+        self.__extracted_news_data: List[NewsData] = []
     
-    def extract_first_page_data(self):
+    @property
+    def source(self):
+        return self.__PAGE_NAME
+    
+    @property
+    def raw_data(self) -> List[Dict[str, Any]]:
+        return self.__raw_data
+
+    @property
+    def data(self) -> List[Dict[str, Any]]:
+        return [ data.to_dict() for data in self.__extracted_news_data ]
+    
+    def remove_data(self, data: BaseData):
+        if type(data) == BaseData:
+            self.__raw_data.remove(data)
+
+    def search_for_news_on_first_page(self) -> None:
         soup = self._get_page(self.__BASE_URL)
         side_section_news = soup.find_all(attrs={"class": "bstn-item-shape"})
         middle_section_news = soup.find_all(attrs={"class": "feed-post-body"})
-        extracted_data = []
         for news in middle_section_news:
-            data = {
-                "titulo": news.h2.string.strip(),
-                "url": news.a["href"].strip()
-            }
-            extracted_data.append(data)
-        for news in extracted_data:
-            self.__extract_news_data_and_raw_text(news)
-        return extracted_data
-    
-    def __extract_news_data_and_raw_text(self, news_dict):
-        news_page = self._get_page(news_dict["url"])
-        descricao = news_page.find("h2").get_text().strip() 
+            try:
+                data = BaseData(
+                    source  = self.__PAGE_NAME,
+                    title   = treat_string(news.h2.string),
+                    url     = self.__verify_url(news.a["href"])
+                )
+                self.__raw_data.append(data)
+            except InvalidUrlException:
+                print(f"Url inválida para: '{data.title}'")
+        print(f"Foram encontradas {len(self.__raw_data)} notícias na primeira página de {self.__PAGE_NAME}.")
+
+    def __verify_url(self, url: str) -> None:
+        if url.startswith(self.__BASE_URL):
+            return url
+        raise InvalidUrlException("Url inválida!")
+
+    def extract_news_data(self) -> None:
+        for data in self.__raw_data:
+            try:
+                news_data = self.__extract_infos_and_raw_text(data)
+                self.__extracted_news_data.append(news_data)
+            except:
+                print(f"Ocorreu um erro extraindo mais informações da notícia com título: '{data.title}'")
+        self.__raw_data.clear()
+
+    def __extract_infos_and_raw_text(self, data: BaseData) -> None:
+        news_page = self._get_page(data.url)
+        description = treat_string(news_page.find("h2").get_text().strip())
         category = news_page.find(attrs = { "class" : "header-editoria--link" }).get_text().strip()
         datetime = news_page.time["datetime"].strip() if news_page.time else np.NAN
-        raw_content = news_page.article.get_text().strip()
-        news_dict.update({ 
-            "data_hora": datetime, 
-            "texto_bruto": raw_content, 
-            "categoria": category,
-            "descricao": descricao
-        })
-
+        raw_text = treat_string(news_page.article.get_text().strip())
+        return NewsData.fromBaseData(
+            base_data   = data,
+            description = description,
+            category    = category,
+            raw_text    = raw_text,
+            datetime    = datetime
+        )
 
     def extract_editorial_page_data(self):
         soup = self._get_page(self.__BASE_URL)
