@@ -1,12 +1,11 @@
 from typing import List, Dict, Any
+import re
 
-import pandas as pd
 import numpy as np
 
 from webscrapers.base_data import BaseData
 from webscrapers.exceptions import InvalidUrlException
 from webscrapers.helpers import datetime_convert, treat_string
-
 from .interfaces.news_webscraper import NewsWebscraper
 from .news_data import NewsData
 
@@ -68,7 +67,7 @@ class G1Webscraper(NewsWebscraper):
         description = treat_string(news_page.find("h2").get_text().strip())
         category = news_page.find(attrs = { "class" : "header-editoria--link" }).get_text().strip()
         datetime = datetime_convert(news_page.time["datetime"].strip()) if news_page.time else np.NAN
-        raw_text = treat_string(news_page.article.get_text().strip())
+        raw_text = self.__remove_figure_captions(treat_string(news_page.article.get_text().strip()))
         return NewsData.fromBaseData(
             base_data   = data,
             description = description,
@@ -76,6 +75,10 @@ class G1Webscraper(NewsWebscraper):
             raw_text    = raw_text,
             datetime    = datetime
         )
+
+    def __remove_figure_captions(self, text: str) -> str:
+        search_pattern = re.compile("[\d][\s]de[\s][\d][\s].*[—][\s]Foto[:]")
+        return re.sub(search_pattern, "", text)
 
     def extract_editorial_page_data(self):
         soup = self._get_page(self.__BASE_URL)

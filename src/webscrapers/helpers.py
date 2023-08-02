@@ -1,7 +1,7 @@
 from datetime import datetime
 
 def treat_string(text: str) -> str:
-    treated_string = text.replace(';', ".").replace("'", "").replace('"', "").strip("\n").strip("\r")
+    treated_string = text.replace(';', ".").replace("'", "").replace('"', "").replace("\n", "").replace("\r", " ")
     return f'"{treated_string}"'
 
 def datetime_convert(datetime_str: str) -> datetime:
