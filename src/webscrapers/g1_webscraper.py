@@ -5,7 +5,7 @@ import numpy as np
 
 from webscrapers.base_data import BaseData
 from webscrapers.exceptions import InvalidUrlException
-from webscrapers.helpers import treat_string
+from webscrapers.helpers import datetime_convert, treat_string
 
 from .interfaces.news_webscraper import NewsWebscraper
 from .news_data import NewsData
@@ -67,7 +67,7 @@ class G1Webscraper(NewsWebscraper):
         news_page = self._get_page(data.url)
         description = treat_string(news_page.find("h2").get_text().strip())
         category = news_page.find(attrs = { "class" : "header-editoria--link" }).get_text().strip()
-        datetime = news_page.time["datetime"].strip() if news_page.time else np.NAN
+        datetime = datetime_convert(news_page.time["datetime"].strip()) if news_page.time else np.NAN
         raw_text = treat_string(news_page.article.get_text().strip())
         return NewsData.fromBaseData(
             base_data   = data,
