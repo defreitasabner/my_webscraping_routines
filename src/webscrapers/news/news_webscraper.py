@@ -3,9 +3,9 @@ from typing import List, Dict, Any
 import requests
 from bs4 import BeautifulSoup
 
-from webscrapers.base_data import BaseData
-from webscrapers.exceptions import InvalidUrlException
-from webscrapers.news_data import NewsData
+from models.base_data import BaseData
+from models.news_data import NewsData
+from exceptions import InvalidUrlException
 
 class NewsWebscraper:
     def __init__(self, page_name: str, base_url: str):

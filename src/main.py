@@ -1,4 +1,4 @@
-from webscrapers.g1_webscraper import G1Webscraper
+from webscrapers.news.g1_webscraper import G1Webscraper
 from file_manager import FileManager
 
 manager = FileManager()

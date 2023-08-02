@@ -2,7 +2,7 @@ from typing import List, Dict, Any
 import pandas as pd
 import os
 
-from webscrapers.g1_webscraper import G1Webscraper
+from webscrapers.news.g1_webscraper import G1Webscraper
 
 class FileManager:
     def __init__(self):

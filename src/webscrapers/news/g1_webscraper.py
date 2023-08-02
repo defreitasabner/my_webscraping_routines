@@ -1,13 +1,12 @@
-from typing import List, Dict, Any
 import re
 
 import numpy as np
 
-from webscrapers.base_data import BaseData
-from webscrapers.exceptions import InvalidUrlException
-from webscrapers.helpers import datetime_convert, treat_string
-from .interfaces.news_webscraper import NewsWebscraper
-from .news_data import NewsData
+from .news_webscraper import NewsWebscraper
+from models.base_data import BaseData
+from models.news_data import NewsData
+from exceptions import InvalidUrlException
+from helpers import datetime_convert, treat_string
 
 class G1Webscraper(NewsWebscraper):
     def __init__(self):

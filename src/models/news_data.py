@@ -1,5 +1,4 @@
-from webscrapers.base_data import BaseData
-
+from models.base_data import BaseData
 
 class NewsData:
     def __init__(
