@@ -35,7 +35,7 @@ class G1Webscraper(NewsWebscraper):
 
     def search_for_news_on_first_page(self) -> None:
         soup = self._get_page(self.__BASE_URL)
-        side_section_news = soup.find_all(attrs={"class": "bstn-item-shape"})
+        mais_lidas_section = soup.find_all(attrs={"class": "post-bastian-products__section post-mais-lidas__section"})
         middle_section_news = soup.find_all(attrs={"class": "feed-post-body"})
         for news in middle_section_news:
             try:

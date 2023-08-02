@@ -1,2 +1,3 @@
 def treat_string(text: str) -> str:
-    return text.replace(';', ".").replace("'", "").replace('"', "").strip("\n").strip("\r")
+    treated_string = text.replace(';', ".").replace("'", "").replace('"', "").strip("\n").strip("\r")
+    return f'"{treated_string}"'
