@@ -1,17 +1,20 @@
-from typing import Dict, List
+from typing import Dict, List, Any
 import re
 from datetime import datetime
 
 import requests
 from bs4 import BeautifulSoup
 
+from exceptions import InvalidUrlException
+
 
 class GuanabaraWebscraper:
     def __init__(self) -> None:
-        self._source = 'Supermercados Guanabara'
+        self._SOURCE = 'Supermercados Guanabara'
+        self._BASE_URL = 'https://www.supermercadosguanabara.com.br'
 
     def extract_categories_data(self) -> List[Dict[str, str]]:
-        webpage = self.__get_webpage('https://www.supermercadosguanabara.com.br/produtos')
+        webpage = self.__get_webpage(f'{self._BASE_URL}/produtos')
         categories_selection = webpage.find('div', {"class": "item item-menu item-sections"})
         categories_html = categories_selection.findAll('li')
         categories = []
@@ -20,12 +23,13 @@ class GuanabaraWebscraper:
             category_url = category_html.find('a')['href']
             category = {
                 "name": category_name,
-                "url": 'https://www.supermercadosguanabara.com.br' + category_url
+                "url": self._BASE_URL + category_url
             }
             categories.append(category)
         return categories
     
-    def extract_products_data(self, category: str, url: str) -> List[Dict[str, str]]:
+    def extract_products_data(self, category: str, url: str) -> List[Dict[str, Any]]:
+        self.__verify_url(url)
         webpage = self.__get_webpage(url)
         validity_date_text = webpage.find('div', {'class': 'validate'}).find('p').text
         validity_date = self.__extract_date(validity_date_text)
@@ -39,15 +43,15 @@ class GuanabaraWebscraper:
                 'nome': product_name,
                 'preço': float(product_price),
                 'categoria': category,
-                'origem': self._source,
+                'origem': self._SOURCE,
                 'imagem': self.__extract_url(product_img),
                 'data_extração': datetime.now(),
-                'data_validade_promoção': datetime.strptime(validity_date, '%d/%m/%Y'),
+                'data_validade_promoção': validity_date,
             }
             products.append(product)
         return products
     
-    def extract_products_data_from_all_categories(self):
+    def extract_products_data_from_all_categories(self) -> List[Dict[str, Any]]:
         categories = self.extract_categories_data()
         result = []
         for category in categories:
@@ -63,7 +67,7 @@ class GuanabaraWebscraper:
         soup = BeautifulSoup(webpage, 'lxml')
         return soup
     
-    def __extract_url(self, text):
+    def __extract_url(self, text: str) -> str:
         pattern = re.compile(r'www.+[a-zA-Z]')
         url_found = pattern.findall(text)
         return url_found[0]
@@ -72,3 +76,7 @@ class GuanabaraWebscraper:
         regex = re.compile(r'[0-9]{2}/[0-9]{2}/[0-9]{4}')
         date = regex.findall(text)
         return date[0]
+    
+    def __verify_url(self, url: str) -> None:
+        if not url.startswith(self._BASE_URL):
+            raise InvalidUrlException("Url inválida!")

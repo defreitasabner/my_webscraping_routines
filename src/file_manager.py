@@ -52,11 +52,11 @@ class FileManager:
         new_dataframe["origem"] = new_dataframe["origem"].astype("string")
         new_dataframe['imagem'] = new_dataframe['imagem'].astype('string')
         new_dataframe["data_extração"] = new_dataframe["data_extração"].astype("datetime64[ns]")
-        new_dataframe["data_validade_promoção"] = new_dataframe["data_validade_promoção"].astype("datetime64[ns]")
+        new_dataframe["data_validade_promoção"] = new_dataframe["data_validade_promoção"].astype("string")
         if os.path.exists(self.__RAW_SUPERMARKET_DATA):
             existing_dataframe = pd.read_csv(self.__RAW_SUPERMARKET_DATA)
             dataframe = pd.concat([existing_dataframe, new_dataframe])
-            dataframe.drop_duplicates(subset=['nome', 'preço', 'origem', 'data_validade_promoção'], inplace = True)
+            dataframe.drop_duplicates(subset=['nome', 'origem', 'preço', 'data_validade_promoção'], keep = 'first', inplace = True)
             dataframe.to_csv(self.__RAW_SUPERMARKET_DATA, index=False)
         else:
             new_dataframe.to_csv(self.__RAW_SUPERMARKET_DATA, index=False)
